@@ -18,22 +18,22 @@ onPlayerConnect()
 		level waittill("connected", player);
 		player iprintln("^1Cold War Zombies");
 		level.perk_purchase_limit = 9;
-		player thread BO4zombiehealth();
+		player thread zombies();
 		player thread visuals();
 		player thread onPlayerSpawned();
 	}
 }
 
-BO4zombiehealth()
+zombies()
 {
 	level endon("end_game");
 	self endon("disconnect");
 	for(;;)
 	{
 		level waittill("start_of_round");
-		if(level.zombie_health > 11272)
+		if(level.zombie_health > 10000)
 		{
-			level.zombie_health = 11272;
+			level.zombie_health = 10000;
 		}
 		wait 0.05;
 	}
@@ -59,19 +59,20 @@ onPlayerSpawned()
 	{
 		self waittill("spawned_player");
 		self setperk("specialty_unlimitedsprint");
-		self thread BO4maxammo();
-		self thread drop_weapon();
+		self thread maxammo();
 		self thread frenzied_guard();
 		self thread frenzied_guard_hud();
+		self thread health_bar_hud();
+		self thread self_revive_hud();
 		self thread quickrevive();
 		self thread staminup();
 		self thread speedcola();
-		self thread health_bar_hud();
-		self thread self_revive_hud();
+		self thread mulekick_save_weapons();
+		self thread mulekick_restore_weapons();
 	}
 }
 
-BO4maxammo()
+maxammo()
 {
 	level endon("end_game");
 	self endon("disconnect");
@@ -82,31 +83,6 @@ BO4maxammo()
 		foreach (weap in weaps) 
 		{
 			self setweaponammoclip(weap, weaponclipsize(weap));
-		}
-		wait 0.05;
-	}
-}
-
-drop_weapon()
-{
-	level endon("end_game");
-	self endon("disconnect");
-	for (;;) 
-	{
-		if (self meleebuttonpressed()) 
-		{
-			duration = 0;
-			while (self meleebuttonpressed()) 
-			{
-				duration += 1;
-				if (duration == 25) 
-				{
-					weap = self getCurrentWeapon();
-					self dropItem(weap);
-					break;
-				}
-				wait 0.05;
-			}
 		}
 		wait 0.05;
 	}
@@ -169,64 +145,6 @@ frenzied_guard_hud()
 			frenzied_guard_hud.alpha = 0.5;
 		}
 		wait 0.05;
-	}
-}
-
-quickrevive()
-{
-	level endon("end_game");
-	self endon("disconnect");
-	for (;;)
-	{
-		if (self hasperk("specialty_quickrevive") && self.health < self.maxHealth)
-		{
-			self.health += 1;
-		}
-		wait 0.1;
-	}
-}
-
-
-
-staminup()
-{
-	level endon("end_game");
-	self endon("disconnect");
-	for (;;)
-	{
-		self waittill_any("perk_acquired", "perk_lost");
-	
-		if (self hasperk("specialty_longersprint"))
-		{
-			self setperk("specialty_movefaster");
-			self setperk("specialty_fallheight");
-			self setperk("specialty_stalker");
-		}
-		else
-		{
-			self unsetperk("specialty_movefaster");
-			self unsetperk("specialty_fallheight");
-			self unsetperk("specialty_stalker");
-		}
-	}
-}
-
-speedcola()
-{
-	level endon("end_game");
-	self endon("disconnect");
-	for (;;)
-	{
-		self waittill_any("perk_acquired", "perk_lost");
-	
-		if (self hasperk("specialty_fastreload"))
-		{
-			self setperk("specialty_fastweaponswitch");
-		}
-		else
-		{
-			self unsetperk("specialty_fastweaponswitch");
-		}
 	}
 }
 
@@ -329,5 +247,140 @@ self_revive_hud()
 			qr_hud.alpha = 0;
 		}
 		wait 0.05;
+	}
+}
+
+quickrevive()
+{
+	level endon("end_game");
+	self endon("disconnect");
+	for (;;)
+	{
+		if (self hasperk("specialty_quickrevive") && self.health < self.maxHealth)
+		{
+			self.health += 1;
+		}
+		wait 0.1;
+	}
+}
+
+staminup()
+{
+	level endon("end_game");
+	self endon("disconnect");
+	for (;;)
+	{
+		self waittill_any("perk_acquired", "perk_lost");
+	
+		if (self hasperk("specialty_longersprint"))
+		{
+			self setperk("specialty_movefaster");
+			self setperk("specialty_fallheight");
+			self setperk("specialty_stalker");
+		}
+		else
+		{
+			self unsetperk("specialty_movefaster");
+			self unsetperk("specialty_fallheight");
+			self unsetperk("specialty_stalker");
+		}
+	}
+}
+
+speedcola()
+{
+	level endon("end_game");
+	self endon("disconnect");
+	for (;;)
+	{
+		self waittill_any("perk_acquired", "perk_lost");
+	
+		if (self hasperk("specialty_fastreload"))
+		{
+			self setperk("specialty_fastweaponswitch");
+		}
+		else
+		{
+			self unsetperk("specialty_fastweaponswitch");
+		}
+	}
+}
+
+mulekick_save_weapons()
+{
+	self endon("disconnect");
+
+	while (1)
+	{
+		if (!self hasPerk("specialty_additionalprimaryweapon"))
+		{
+			self waittill("perk_acquired");
+			wait 0.05;
+		}
+
+		if (self hasPerk("specialty_additionalprimaryweapon"))
+		{
+			primaries = self getweaponslistprimaries();
+			if (primaries.size >= 3)
+			{
+				weapon = primaries[primaries.size - 1];
+				self.a_saved_weapon = maps/mp/zombies/_zm_weapons::get_player_weapondata(self, weapon);
+			}
+			else
+			{
+				self.a_saved_weapon = undefined;
+			}
+		}
+
+		wait 0.05;
+	}
+}
+
+mulekick_restore_weapons()
+{
+	self endon("disconnect");
+
+	while (1)
+	{
+		self waittill("perk_acquired");
+
+		if (isDefined(self.a_saved_weapon) && self hasPerk("specialty_additionalprimaryweapon"))
+		{
+			pap_triggers = getentarray( "specialty_weapupgrade", "script_noteworthy" );
+
+			give_wep = 1;
+			if ( isDefined( self ) && self maps/mp/zombies/_zm_weapons::has_weapon_or_upgrade( self.a_saved_weapon["name"] ) )
+			{
+				give_wep = 0;
+			}
+			else if ( !maps/mp/zombies/_zm_weapons::limited_weapon_below_quota( self.a_saved_weapon["name"], self, pap_triggers ) )
+			{
+				give_wep = 0;
+			}
+			else if ( !self maps/mp/zombies/_zm_weapons::player_can_use_content( self.a_saved_weapon["name"] ) )
+			{
+				give_wep = 0;
+			}
+			else if ( isDefined( level.custom_magic_box_selection_logic ) )
+			{
+				if ( !( [[ level.custom_magic_box_selection_logic ]]( self.a_saved_weapon["name"], self, pap_triggers ) ) )
+				{
+					give_wep = 0;
+				}
+			}
+			else if ( isDefined( self ) && isDefined( level.special_weapon_magicbox_check ) )
+			{
+				give_wep = self [[ level.special_weapon_magicbox_check ]]( self.a_saved_weapon["name"] );
+			}
+
+			if (give_wep)
+			{
+				current_wep = self getCurrentWeapon();
+				self maps/mp/zombies/_zm_weapons::weapondata_give(self.a_saved_weapon);
+				self switchToWeapon(current_wep);
+			}
+
+			self.a_saved_weapon = undefined;
+		}
 	}
 }
