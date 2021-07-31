@@ -1,4 +1,4 @@
-# Cold War Zombies gameplay and texture mod for BO2 Plutonium.
+# Black Ops 2 Zombies - Cold War Overhaul Mod
 
 ## General
 - No perk limit
@@ -6,9 +6,8 @@
 - Field Upgrade: Frenzied Guard
   - Grants invulnerability for 15 seconds
   - Press the ACTION SLOT THREE button/ALT FIRE button to activate
-- Weapon dropping by holding the MELEE button
-- BO4 max ammo
-- BO4 health cap
+- Max ammos refill weapon clips
+- Zombie health capped at 10,000
 - HUD additions: Health bar, Frenzied Guard and self revives
 - Improved visuals and texture quality
 
@@ -21,6 +20,8 @@
   - Walk faster while aiming
 - Speed Cola:
   - Swap weapons faster
+- Mule Kick:
+  - Repurchasing the perk restores the player's lost weapon
 
 ## Texture Pack
 - Perk machines
