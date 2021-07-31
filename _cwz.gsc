@@ -223,16 +223,16 @@ self_revive_hud()
 	self endon("disconnect");
 	flag_wait("initial_blackscreen_passed");
 	
-	qr_hud = newClientHudElem(self);
-	qr_hud.alignx = "left";
-	qr_hud.aligny = "bottom";
-	qr_hud.horzalign = "user_left";
-	qr_hud.vertalign = "user_bottom";
-	qr_hud.x += 155;
-	qr_hud.alpha = 0;
-	qr_hud.color = ( 1, 1, 1 );
-	qr_hud.hidewheninmenu = 1;
-	qr_hud setShader("damage_feedback", 32, 32);
+	self_revive_hud = newClientHudElem(self);
+	self_revive_hud.alignx = "left";
+	self_revive_hud.aligny = "bottom";
+	self_revive_hud.horzalign = "user_left";
+	self_revive_hud.vertalign = "user_bottom";
+	self_revive_hud.x += 155;
+	self_revive_hud.alpha = 0;
+	self_revive_hud.color = ( 1, 1, 1 );
+	self_revive_hud.hidewheninmenu = 1;
+	self_revive_hud setShader("damage_feedback", 32, 32);
 	
 	self waittill_any("perk_acquired", "perk_lost");
 	for(;;)
@@ -240,11 +240,11 @@ self_revive_hud()
 		if (self hasperk("specialty_quickrevive") && getPlayers().size <= 1)
 		{	
 
-			qr_hud.alpha = 1;
+			self_revive_hud.alpha = 1;
 		}
 		else 
 		{
-			qr_hud.alpha = 0;
+			self_revive_hud.alpha = 0;
 		}
 		wait 0.05;
 	}
@@ -308,9 +308,9 @@ speedcola()
 
 mulekick_save_weapons()
 {
+	level endon("end_game");
 	self endon("disconnect");
-
-	while (1)
+	for (;;)
 	{
 		if (!self hasPerk("specialty_additionalprimaryweapon"))
 		{
@@ -338,9 +338,9 @@ mulekick_save_weapons()
 
 mulekick_restore_weapons()
 {
+	level endon("end_game");
 	self endon("disconnect");
-
-	while (1)
+	for (;;)
 	{
 		self waittill("perk_acquired");
 
