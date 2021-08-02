@@ -7,6 +7,7 @@ init()
 {
 	precacheshader("damage_feedback");
 	precacheshader("menu_mp_fileshare_custom");
+	precacheshader("menu_mp_killstreak_select");
 
 	level thread onPlayerConnect();
 }
@@ -60,8 +61,16 @@ onPlayerSpawned()
 		self waittill("spawned_player");
 		self setperk("specialty_unlimitedsprint");
 		self thread maxammo();
-		self thread frenzied_guard();
-		self thread frenzied_guard_hud();
+		if ((level.script == "zm_transit") || (level.script == "zm_highrise") || (level.script == "zm_buried"))
+		{
+			self thread aether_shroud();
+			self thread aether_shroud_hud();
+		}
+		else
+		{
+			self thread frenzied_guard();
+			self thread frenzied_guard_hud();
+		}
 		self thread health_bar_hud();
 		self thread self_revive_hud();
 		self thread quickrevive();
@@ -83,6 +92,68 @@ maxammo()
 		foreach (weap in weaps) 
 		{
 			self setweaponammoclip(weap, weaponclipsize(weap));
+		}
+		wait 0.05;
+	}
+}
+
+aether_shroud()
+{
+	level endon("end_game");
+	self endon("disconnect");
+	for(;;)
+	{
+		if (self.kills >= 45 && self actionslotthreebuttonpressed())
+		{	
+			duration = 0;
+			for(;;)
+			{
+				duration += 1;
+				self setperk("specialty_noname");
+				self.ignoreme = 1;
+				self setvisionsetforplayer("zombie_last_stand", 0);
+				if (duration >= 160)
+				{
+					self unsetperk("specialty_noname");
+					self.ignoreme = 0;
+					self setvisionsetforplayer("remote_mortar_enhanced", 0);
+					self.kills = 0;
+					break;
+				}
+				wait 0.05;
+			}
+		}
+		wait 0.05;
+	}
+}
+
+aether_shroud_hud()
+{
+	level endon("end_game");
+	self endon("disconnect");
+	flag_wait("initial_blackscreen_passed");
+	
+	aether_shroud_hud = newClientHudElem(self);
+	aether_shroud_hud.alignx = "right";
+	aether_shroud_hud.aligny = "bottom";
+	aether_shroud_hud.horzalign = "user_right";
+	aether_shroud_hud.vertalign = "user_bottom";
+	aether_shroud_hud.x -= 155;
+	aether_shroud_hud.y -= 2;
+	aether_shroud_hud.alpha = 0;
+	aether_shroud_hud.color = ( 1, 1, 1 );
+	aether_shroud_hud.hidewheninmenu = 1;
+	aether_shroud_hud setShader("menu_mp_killstreak_select", 32, 32);
+	
+	for(;;)
+	{
+		if (self.kills >= 45)
+		{	
+			aether_shroud_hud.alpha = 1;
+		}
+		else 
+		{
+			aether_shroud_hud.alpha = 0.25;
 		}
 		wait 0.05;
 	}
@@ -142,7 +213,7 @@ frenzied_guard_hud()
 		}
 		else 
 		{
-			frenzied_guard_hud.alpha = 0.5;
+			frenzied_guard_hud.alpha = 0.25;
 		}
 		wait 0.05;
 	}
