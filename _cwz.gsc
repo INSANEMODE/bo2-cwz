@@ -110,12 +110,12 @@ aether_shroud()
 			{
 				duration += 1;
 				self setperk("specialty_noname");
-				self.ignoreme = 1;
+				self.ignoreme = true;
 				self setvisionsetforplayer("zombie_last_stand", 0);
 				if (duration >= 160)
 				{
 					self unsetperk("specialty_noname");
-					self.ignoreme = 0;
+					self.ignoreme = false;
 					self setvisionsetforplayer("remote_mortar_enhanced", 0);
 					self.kills = 0;
 					break;
